@@ -1,8 +1,5 @@
-
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Question, Card } from '../types';
-import useSpeechRecognition from '../hooks/useSpeechRecognition';
-import { evaluateSpokenAnswer } from '../services/geminiService';
 
 interface QuestionModalProps {
   question: Question;
@@ -27,15 +24,11 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
   const [availableCards, setAvailableCards] = useState<Card[]>([]);
   const [answerCards, setAnswerCards] = useState<Card[]>([]);
   const [result, setResult] = useState<'correct' | 'incorrect' | null>(null);
-  const [isChecking, setIsChecking] = useState<boolean>(false);
-
-  const { isListening, transcript, startListening, stopListening, error } = useSpeechRecognition();
 
   useEffect(() => {
     setAvailableCards(shuffleArray(question.cards));
     setAnswerCards([]);
     setResult(null);
-    setIsChecking(false);
   }, [question]);
 
   const selectCard = (card: Card) => {
@@ -57,47 +50,6 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
     setTimeout(() => onClose(isCorrect, question.points), 2500);
   };
   
-  const checkSpokenAnswer = useCallback(async (spokenText: string) => {
-      if (!spokenText) {
-          setResult('incorrect');
-          setTimeout(() => onClose(false, question.points), 2500);
-          return;
-      }
-      setIsChecking(true);
-      try {
-          const isCorrect = await evaluateSpokenAnswer(spokenText, question.correctSentence);
-          if (isCorrect) {
-            // If spoken answer is correct, show the correctly ordered cards
-            setAnswerCards(question.cards);
-            setAvailableCards([]);
-          }
-          setResult(isCorrect ? 'correct' : 'incorrect');
-          setTimeout(() => onClose(isCorrect, question.points), 2500);
-      } catch (err) {
-          console.error("Error evaluating answer:", err);
-          setResult('incorrect');
-          setTimeout(() => onClose(false, question.points), 2500);
-      } finally {
-          setIsChecking(false);
-      }
-  }, [question, onClose]);
-
-  useEffect(() => {
-    if (!isListening && transcript) {
-        checkSpokenAnswer(transcript);
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isListening, transcript]);
-
-  const handleMicClick = () => {
-      if (isListening) {
-          stopListening();
-      } else {
-          startListening();
-      }
-  };
-
-
   return (
     <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
       <div className="bg-gray-800 border-4 border-blue-500 rounded-lg shadow-2xl w-full max-w-4xl p-6 relative transform transition-all animate-scale-in">
@@ -116,7 +68,7 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
           </div>
         )}
         
-        <p className="mb-4 text-lg">Plaats de kaarten in de juiste volgorde, of gebruik de microfoon om de definitie uit te spreken.</p>
+        <p className="mb-4 text-lg">Plaats de kaarten in de juiste volgorde om de definitie te vormen.</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -147,26 +99,14 @@ const QuestionModal: React.FC<QuestionModalProps> = ({ question, onClose }) => {
           </div>
         </div>
         
-        <div className="mt-6 flex flex-col md:flex-row items-center justify-center gap-4">
+        <div className="mt-6 flex items-center justify-center">
             <button
                 onClick={checkManualAnswer}
-                disabled={answerCards.length !== question.cards.length || isChecking || !!result}
+                disabled={answerCards.length !== question.cards.length || !!result}
                 className="w-full md:w-auto px-6 py-3 bg-green-600 text-white font-bold rounded-lg hover:bg-green-700 disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors"
             >
                 Antwoord Bevestigen
             </button>
-            <div className="text-center">
-              <button
-                  onClick={handleMicClick}
-                  disabled={isChecking || !!result}
-                  className={`w-16 h-16 rounded-full flex items-center justify-center text-3xl transition-all duration-300 ${isListening ? 'bg-red-600 animate-pulse' : 'bg-blue-600 hover:bg-blue-700'} disabled:bg-gray-500`}
-              >
-                  <i className="fa-solid fa-microphone"></i>
-              </button>
-              {isListening && <p className="text-sm mt-1">Aan het luisteren...</p>}
-              {isChecking && <p className="text-sm mt-1">AI controleert antwoord...</p>}
-              {error && <p className="text-sm mt-1 text-red-400">{error}</p>}
-            </div>
         </div>
 
       </div>

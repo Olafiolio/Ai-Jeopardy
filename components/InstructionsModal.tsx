@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface InstructionsModalProps {
@@ -15,16 +14,9 @@ const InstructionsModal: React.FC<InstructionsModalProps> = ({ onClose }) => {
           <p>Welkom bij AI Definities Jeopardy! Test je kennis van belangrijke AI-concepten.</p>
           <ul className="list-disc list-inside space-y-2 pl-4">
             <li><strong>Kies een Categorie:</strong> Klik op een kaart met een puntenwaarde om een vraag te starten.</li>
-            <li><strong>Vorm de Definitie:</strong> Je krijgt een set van ongesorteerde kaarten. Jouw taak is om de volledige, correcte definitie te vormen.</li>
-            <li>
-              <strong>Twee Manieren om te Spelen:</strong>
-              <ul className="list-disc list-inside space-y-1 pl-6 mt-1">
-                <li><strong>Klikken & Slepen:</strong> Klik op de kaarten in de juiste volgorde om ze naar het 'Jouw Antwoord' vak te verplaatsen.</li>
-                <li><strong>Spraakinvoer:</strong> Klik op de microfoonknop (<i className="fa-solid fa-microphone"></i>) en spreek de volledige definitie duidelijk uit. De AI zal beoordelen of je antwoord correct is!</li>
-              </ul>
-            </li>
+            <li><strong>Vorm de Definitie:</strong> Je krijgt een set van ongesorteerde kaarten. Klik op de kaarten in de juiste volgorde om ze naar het 'Jouw Antwoord' vak te verplaatsen en de volledige, correcte definitie te vormen.</li>
             <li><strong>Scoren:</strong> Voor elk correct antwoord verdien je het aantal punten dat op de kaart staat.</li>
-            <li><strong>Doel:</strong> Beantwoord alle vragen correct om het spel te winnen en een speciale beloning te ontgrendelen!</li>
+            <li><strong>Doel:</strong> Beantwoord alle vragen correct om de eindscore te zien.</li>
           </ul>
           <p className="font-bold text-center">Veel succes!</p>
         </div>
