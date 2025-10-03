@@ -1,0 +1,7 @@
+{
+  "name": "AI Definities Jeopardy",
+  "description": "Een Jeopardy-stijl spel om je kennis van AI-concepten te testen. Rangschik de kaarten in de juiste volgorde of spreek de definitie uit om punten te scoren.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
