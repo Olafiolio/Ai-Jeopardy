@@ -1,6 +1,7 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import type { Category } from '../types';
+import { generateVictoryPoem } from '../services/geminiService';
 
 interface EndScreenProps {
   board: Category[];
@@ -9,6 +10,8 @@ interface EndScreenProps {
 }
 
 const EndScreen: React.FC<EndScreenProps> = ({ board, score, onRestart }) => {
+  const [poem, setPoem] = useState<string>("Gedicht wordt gegenereerd...");
+
   const allQuestions = board.flatMap(category => 
     category.questions.map(question => ({
       ...question,
@@ -18,6 +21,18 @@ const EndScreen: React.FC<EndScreenProps> = ({ board, score, onRestart }) => {
 
   const correctAnswers = allQuestions.filter(q => q.answeredCorrectly);
   const incorrectAnswers = allQuestions.filter(q => !q.answeredCorrectly);
+
+  useEffect(() => {
+    const fetchPoem = async () => {
+      const categoryTitles = board.map(cat => cat.title);
+      const generatedPoem = await generateVictoryPoem(score, correctAnswers.length, allQuestions.length, categoryTitles);
+      setPoem(generatedPoem);
+    };
+    
+    if (board.length > 0) {
+      fetchPoem();
+    }
+  }, [board, score, correctAnswers.length, allQuestions.length]);
 
   const getPerformanceMessage = () => {
     const percentage = allQuestions.length > 0 ? (correctAnswers.length / allQuestions.length) * 100 : 0;
@@ -37,7 +52,11 @@ const EndScreen: React.FC<EndScreenProps> = ({ board, score, onRestart }) => {
     <div className="flex flex-col items-center justify-center text-center p-8 bg-gray-800 rounded-lg shadow-xl animate-fade-in mt-8">
       <h1 className="text-5xl font-bold text-yellow-300 mb-4">Spelrapport</h1>
       <p className="text-2xl text-cyan-300 mb-2">Eindscore: <span className="font-bold text-green-400">{score}</span></p>
-      <p className="text-xl text-gray-300 mb-8">{getPerformanceMessage()}</p>
+      <p className="text-xl text-gray-300 mb-6">{getPerformanceMessage()}</p>
+      
+      <div className="w-full max-w-2xl bg-gray-900/50 border-2 border-purple-400 p-4 rounded-lg mb-8 italic">
+        <p className="text-purple-200 whitespace-pre-wrap">{poem}</p>
+      </div>
       
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-8">
         <div className="bg-gray-900 p-6 rounded-lg">

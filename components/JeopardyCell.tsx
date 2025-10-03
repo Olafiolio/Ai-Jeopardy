@@ -1,6 +1,6 @@
-
 import React from 'react';
 import type { Question } from '../types';
+import { playSound } from '../services/soundService';
 
 interface JeopardyCellProps {
   question: Question;
@@ -10,20 +10,23 @@ interface JeopardyCellProps {
 const JeopardyCell: React.FC<JeopardyCellProps> = ({ question, onSelect }) => {
   const handleClick = () => {
     if (!question.completed) {
+      playSound('select');
       onSelect(question);
     }
   };
 
+  const baseProps = { "data-question-id": question.id };
+
   if (question.completed) {
     if (question.answeredCorrectly) {
       return (
-        <div className="h-24 md:h-32 flex items-center justify-center bg-green-900/60 rounded-lg text-green-300 border-2 border-green-500 animate-pulse-once">
+        <div {...baseProps} className="h-24 md:h-32 flex items-center justify-center bg-green-900/60 rounded-lg text-green-300 border-2 border-green-500 animate-pulse-once">
           <i className="fa-solid fa-check text-5xl"></i>
         </div>
       );
     } else {
       return (
-        <div className="h-24 md:h-32 flex items-center justify-center bg-red-900/60 rounded-lg text-red-300 border-2 border-red-500">
+        <div {...baseProps} className="h-24 md:h-32 flex items-center justify-center bg-red-900/60 rounded-lg text-red-300 border-2 border-red-500">
           <i className="fa-solid fa-times text-5xl"></i>
         </div>
       );
@@ -32,6 +35,7 @@ const JeopardyCell: React.FC<JeopardyCellProps> = ({ question, onSelect }) => {
 
   return (
     <div
+      {...baseProps}
       className="h-24 md:h-32 flex items-center justify-center bg-blue-700 rounded-lg cursor-pointer hover:bg-blue-600 transition-all duration-200 transform hover:scale-105 shadow-lg"
       onClick={handleClick}
     >

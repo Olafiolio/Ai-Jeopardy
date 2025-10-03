@@ -9,12 +9,24 @@ import QuestionModal from './components/QuestionModal';
 import EndScreen from './components/VictoryScreen';
 import InstructionsModal from './components/InstructionsModal';
 
-export default function App(): React.ReactElement {
-  const [gameState, setGameState] = useState<GameState>({
-    board: INITIAL_GAME_DATA,
+const createInitialState = (): GameState => {
+  const boardWithState = INITIAL_GAME_DATA.map(category => ({
+    ...category,
+    questions: category.questions.map(q => ({
+      ...q,
+      completed: false,
+      answeredCorrectly: null,
+    })),
+  }));
+  return {
+    board: boardWithState,
     score: 0,
     questionsAnswered: 0,
-  });
+  };
+};
+
+export default function App(): React.ReactElement {
+  const [gameState, setGameState] = useState<GameState>(createInitialState);
   const [activeQuestion, setActiveQuestion] = useState<Question | null>(null);
   const [showInstructions, setShowInstructions] = useState<boolean>(true);
 
@@ -48,14 +60,7 @@ export default function App(): React.ReactElement {
   }, [activeQuestion]);
 
   const restartGame = () => {
-    setGameState({
-      board: INITIAL_GAME_DATA.map(cat => ({
-        ...cat,
-        questions: cat.questions.map(q => ({...q, completed: false, answeredCorrectly: null }))
-      })),
-      score: 0,
-      questionsAnswered: 0,
-    });
+    setGameState(createInitialState());
     setActiveQuestion(null);
     setShowInstructions(true);
   };
@@ -80,7 +85,7 @@ export default function App(): React.ReactElement {
         />
       )}
       
-      {showInstructions && (
+      {showInstructions && totalQuestions > 0 && (
         <InstructionsModal onClose={() => setShowInstructions(false)} />
       )}
     </div>

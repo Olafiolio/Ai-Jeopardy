@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 
 const API_KEY = process.env.API_KEY;
@@ -10,15 +11,39 @@ if (!API_KEY) {
 
 const ai = new GoogleGenAI({ apiKey: API_KEY! });
 
-export const generateVictoryPoem = async (): Promise<string> => {
+export const getDeeperExplanation = async (concept: string): Promise<string> => {
   try {
-    const prompt = `Een speler heeft zojuist een AI-thema Jeopardy-spel gewonnen. Ze hebben Generatieve AI, Prompts, Hallucinatie, de DROP-methode, Context Window, Temperature, Tokens, AI Bias en Fine-tuning correct gedefinieerd. Schrijf een kort, leuk en feestelijk gedicht voor hen, feliciteer hen met het worden van een AI-expert. Schrijf in het Nederlands.`;
+    const prompt = `Leg het AI-concept "${concept}" in het Nederlands uit in eenvoudige bewoordingen voor een beginner. Geef ook één praktisch voorbeeld uit de echte wereld. Houd het antwoord kort en bondig (ongeveer 2-3 zinnen).`;
     
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash',
       contents: prompt,
       config: {
           temperature: 0.7,
+      }
+    });
+
+    return response.text;
+  } catch (error) {
+    console.error(`Error generating explanation for ${concept}:`, error);
+    return "Kon op dit moment geen uitleg genereren. Probeer het later opnieuw.";
+  }
+};
+
+export const generateVictoryPoem = async (score: number, correctCount: number, totalCount: number, categories: string[]): Promise<string> => {
+  try {
+    const prompt = `Een speler heeft zojuist een AI-thema Jeopardy-spel voltooid.
+    - Eindscore: ${score}
+    - Correcte antwoorden: ${correctCount} van de ${totalCount}
+    - De categorieën waren: ${categories.join(', ')}.
+    
+    Schrijf een kort (4-6 regels), leuk en feestelijk gedicht voor hen in het Nederlands. Feliciteer hen met hun prestatie en het leren over AI. Pas de toon aan op basis van de score. Een hoge score krijgt een zeer lovend gedicht, een lage score een bemoedigend gedicht.`;
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-2.5-flash',
+      contents: prompt,
+      config: {
+          temperature: 0.8,
       }
     });
 
